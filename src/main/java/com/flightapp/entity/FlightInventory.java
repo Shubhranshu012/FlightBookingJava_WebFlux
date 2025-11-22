@@ -14,11 +14,14 @@ import lombok.*;
 @Builder
 public class FlightInventory {
 	@Id
-	private Long id;
-	private String flightId; 
-	private LocalDateTime departureTime;
-	private LocalDateTime arrivalTime;	
-	private Double price;
-	private Integer totalSeats;
-	private Integer availableSeats;
+	private String id;
+	private String airline;
+	private String flightId;   //
+    private Airport source;   
+    private Airport destination;
+	private LocalDateTime departureTime;//
+	private LocalDateTime arrivalTime;	//
+	private Double price;		//
+	private Integer totalSeats;//
+	private Integer availableSeats;//
 }
