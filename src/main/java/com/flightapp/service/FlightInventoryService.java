@@ -28,8 +28,6 @@ public class FlightInventoryService {
 	@Autowired
 	FlightRepository flightRepo;
 	
-	@Autowired
-	AirportUtil airportUtil;
 	public Mono<Object> addInventory(InventoryRequestDto inventoryDto) {
 		if (inventoryDto.getAvailableSeats() > inventoryDto.getTotalSeats()) {
             return Mono.error(new BadRequestException("Available seats cannot be greater than total seats"));
@@ -44,8 +42,8 @@ public class FlightInventoryService {
     	Airport source;
     	Airport destination;
 		try {
-			source = airportUtil.validateAirport(inventoryDto.getFromPlace());
-			destination = airportUtil.validateAirport(inventoryDto.getToPlace());
+			source = AirportUtil.validateAirport(inventoryDto.getFromPlace());
+			destination = AirportUtil.validateAirport(inventoryDto.getToPlace());
 		} catch (BadRequestException e) {
 			return Mono.error(new BadRequestException("Source or Deatination invalid"));
 		}
@@ -86,8 +84,8 @@ public class FlightInventoryService {
 	    Airport source;
     	Airport destination;
 		try {
-			source = airportUtil.validateAirport(searchDto.getFromPlace());
-			destination = airportUtil.validateAirport(searchDto.getToPlace());
+			source = AirportUtil.validateAirport(searchDto.getFromPlace());
+			destination = AirportUtil.validateAirport(searchDto.getToPlace());
 		} catch (BadRequestException e) {
 			return Mono.error(new BadRequestException("Source or Deatination Invalid"));
 		}
