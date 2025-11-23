@@ -35,7 +35,7 @@ public class FlightInventoryService {
     	if (inventoryDto.getArrivalTime().isBefore(inventoryDto.getDepartureTime())) {
     	    return Mono.error(new BadRequestException("Arrival time cannot be before departure time"));
     	}
-    	if(inventoryDto.getFromPlace()==inventoryDto.getToPlace()) {
+    	if(inventoryDto.getFromPlace().equals(inventoryDto.getToPlace())) {
     		return Mono.error(new BadRequestException("source and Destination Can't be Same"));
     	}
 

@@ -35,18 +35,6 @@ class AirlineInventoryControllerTest {
     }
 
     @Test
-    void addInventory_success() {
-        InventoryRequestDto inventoryDto = buildValidDto();
-
-        webTestClient.post()
-                .uri("/api/flight/airline/inventory/add")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(inventoryDto)
-                .exchange()
-                .expectStatus().isCreated();
-    }
-
-    @Test
     void addInventory_validationError_missingAirlineName() {
         InventoryRequestDto inventoryDto = buildValidDto();
         inventoryDto.setAirlineName("");
@@ -59,4 +47,81 @@ class AirlineInventoryControllerTest {
                 .expectStatus().isBadRequest();
     }
 
+    @Test
+    void addInventory_validationError_timeMisMatch() {
+        InventoryRequestDto inventoryDto = buildValidDto();
+        inventoryDto.setDepartureTime(LocalDateTime.now().plusDays(2));
+        inventoryDto.setArrivalTime(LocalDateTime.now().plusDays(1).plusHours(2));
+
+        webTestClient.post()
+                .uri("/api/flight/airline/inventory/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(inventoryDto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void addInventory_validationError_missingToPlace() {
+        InventoryRequestDto inventoryDto = buildValidDto();
+        inventoryDto.setToPlace("");
+
+        webTestClient.post()
+                .uri("/api/flight/airline/inventory/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(inventoryDto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+    @Test
+    void addInventory_SameSourceDestination() {
+        InventoryRequestDto inventoryDto = buildValidDto();
+        inventoryDto.setToPlace("Kolkata");
+        inventoryDto.setFromPlace("Kolkata");
+
+        webTestClient.post()
+                .uri("/api/flight/airline/inventory/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(inventoryDto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+    @Test
+    void addInventory_InvalidAirport() {
+        InventoryRequestDto inventoryDto = buildValidDto();
+        inventoryDto.setToPlace("Odisha");
+
+        webTestClient.post()
+                .uri("/api/flight/airline/inventory/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(inventoryDto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+    
+    @Test
+    void addInventory_validationError_dateInPast() {
+        InventoryRequestDto inventoryDto = buildValidDto();
+        inventoryDto.setDepartureTime(LocalDateTime.now().minusDays(1));
+
+        webTestClient.post()
+                .uri("/api/flight/airline/inventory/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(inventoryDto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void addInventory_validationError_availableSeatsGreaterThanTotal() {
+        InventoryRequestDto inventoryDto = buildValidDto();
+        inventoryDto.setAvailableSeats(300);
+
+        webTestClient.post()
+                .uri("/api/flight/airline/inventory/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(inventoryDto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
 }

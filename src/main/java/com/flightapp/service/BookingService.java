@@ -40,8 +40,6 @@ public class BookingService {
         if (bookingDto.getNumberOfSeats() != bookingDto.getPassengers().size()) {
             return Mono.error(new BadRequestException("Seat numbers count must match passenger count"));
         }
-        System.out.println(bookingDto.getSeatNumbers());
-        System.out.println(bookingDto.getSeatNumbers().size());
         Set<String> uniqueSeats = new HashSet<>(bookingDto.getSeatNumbers());
         if (uniqueSeats.size() != bookingDto.getSeatNumbers().size()) {
             return Mono.error(new BadRequestException("Duplicate seat numbers in request"));
