@@ -1,6 +1,5 @@
 package com.flightapp.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flightapp.dto.BookingRequestDto;
 import com.flightapp.dto.PassengerDto;
 import com.flightapp.entity.Airport;
@@ -95,6 +94,79 @@ class BookingControllerIntegrationTest {
                 .bodyValue(validBooking())
                 .exchange()
                 .expectStatus().isCreated();
+    }
+    @Test
+    void bookTicket_moreSeatsThanPassengers() {
+        BookingRequestDto dto = buildBooking(
+                buildPassenger("Rohit", "M", 28, "12A", "VEG"),
+                List.of("1A", "1B")
+        );
+
+        webTestClient.post()
+                .uri("/api/flight/booking/" + inventoryId1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(dto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void bookTicket_seatAlreadyBooked() {
+        webTestClient.post()
+                .uri("/api/flight/booking/" + inventoryId1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(validBooking())
+                .exchange()
+                .expectStatus().isCreated();
+
+        webTestClient.post()
+                .uri("/api/flight/booking/" + inventoryId1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(validBooking())
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void bookTicket_duplicateSeatInRequest() {
+        PassengerDto p = buildPassenger("Rohit", "M", 28, "12A", "VEG");
+        BookingRequestDto dto = buildBooking(p, List.of("12A", "12A"));
+
+        webTestClient.post()
+                .uri("/api/flight/booking/" + inventoryId1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(dto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void bookTicket_notEnoughSeatsLeft() {
+        PassengerDto p = buildPassenger("Rohit", "M", 28, "12A", "VEG");
+        BookingRequestDto dto = buildBooking(p, List.of("12A", "12B"));
+
+        webTestClient.post()
+                .uri("/api/flight/booking/" + inventoryId2)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(dto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void bookingHistory_empty() {
+        webTestClient.get()
+                .uri("/api/flight/booking/history/test@gmail.com")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void cancelBooking_invalidPNR() {
+        webTestClient.delete()
+                .uri("/api/flight/booking/cancel/PNR0000")
+                .exchange()
+                .expectStatus().isNotFound();
     }
 
     
