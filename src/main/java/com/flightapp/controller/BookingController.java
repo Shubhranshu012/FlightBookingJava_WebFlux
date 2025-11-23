@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.flightapp.dto.BookingRequestDto;
 import com.flightapp.service.BookingService;
+
+import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -21,7 +23,7 @@ public class BookingController {
 	BookingService bookingService;
 	
 	@PostMapping("/api/flight/booking/{flightId}")
-	public Mono<ResponseEntity<Object>> book(@PathVariable String flightId,@RequestBody BookingRequestDto dto) {
+	public Mono<ResponseEntity<Object>> book(@PathVariable String flightId,@RequestBody @Valid BookingRequestDto dto) {
 
 	    return bookingService.bookTicket(flightId, dto).map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
 	}

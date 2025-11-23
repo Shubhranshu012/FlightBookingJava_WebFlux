@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.flightapp.dto.InventoryRequestDto;
 import com.flightapp.service.FlightInventoryService;
 
+import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -18,7 +19,7 @@ public class AirlineInventoryController {
 	FlightInventoryService flightService;
 	
 	@PostMapping("/api/flight/airline/inventory/add")
-	public Mono<ResponseEntity<Void>> addInventory(@RequestBody InventoryRequestDto inventorydto) {
+	public Mono<ResponseEntity<Void>> addInventory(@RequestBody @Valid InventoryRequestDto inventorydto) {
 		
 	    return flightService.addInventory(inventorydto).then(Mono.just(ResponseEntity.status(201).build()));
 	}
