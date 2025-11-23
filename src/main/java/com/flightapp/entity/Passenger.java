@@ -11,12 +11,16 @@ import lombok.*;
 @Builder
 
 public class Passenger {
-	@Id
-	private String id;
-	
-	private String name;
-	private String gender;
-	private Integer age;
-	private String seatNumber;
-	private String mealOption;
+
+    @Id
+    private String id;
+
+    private String name;
+    private String gender;
+    private Integer age;
+    private String seatNumber;
+    private String mealOption;
+
+    private String bookingId;  
+    private String flightInventoryId;
 }

@@ -13,7 +13,7 @@ public class InventoryRequestDto {
 	private String flightNumber;
 	private LocalDateTime departureTime;
 	private LocalDateTime arrivalTime;
-	private Double price;
+	private float price;
 	private Integer totalSeats;
 	private Integer availableSeats;
 }

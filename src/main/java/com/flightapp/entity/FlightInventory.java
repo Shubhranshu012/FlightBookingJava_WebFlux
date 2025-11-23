@@ -21,7 +21,7 @@ public class FlightInventory {
     private Airport destination;
 	private LocalDateTime departureTime;//
 	private LocalDateTime arrivalTime;	//
-	private Double price;		//
+	private float price;		//
 	private Integer totalSeats;//
 	private Integer availableSeats;//
 }

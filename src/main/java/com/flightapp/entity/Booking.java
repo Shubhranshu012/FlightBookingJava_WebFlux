@@ -19,7 +19,7 @@ public class Booking {
     private String email;
     private LocalDateTime bookingTime;
     private LocalDateTime departureTime;
-    private String flightInventoryId;   
-    private List<Passenger> passengers; 
+    private LocalDateTime arrivalTime;
+    private String flightInventoryId;
     private BookingStatus status;
 }
