@@ -12,6 +12,8 @@ import com.flightapp.dto.SearchRequestDto;
 import com.flightapp.entity.Airport;
 import com.flightapp.entity.Flight;
 import com.flightapp.entity.FlightInventory;
+import com.flightapp.exception.BadRequestException;
+import com.flightapp.exception.NotFoundException;
 import com.flightapp.repository.FlightInventoryRepository;
 import com.flightapp.repository.FlightRepository;
 import com.flightapp.util.AirportUtil;
@@ -30,29 +32,36 @@ public class FlightInventoryService {
 	AirportUtil airportUtil;
 	public Mono<Object> addInventory(InventoryRequestDto inventoryDto) {
 		if (inventoryDto.getAvailableSeats() > inventoryDto.getTotalSeats()) {
-            throw new RuntimeException("Available seats cannot be greater than total seats");
+            return Mono.error(new BadRequestException("Available seats cannot be greater than total seats"));
         }
     	if (inventoryDto.getArrivalTime().isBefore(inventoryDto.getDepartureTime())) {
-    	    throw new RuntimeException("Arrival time cannot be before departure time");
+    	    return Mono.error(new BadRequestException("Arrival time cannot be before departure time"));
     	}
     	if(inventoryDto.getFromPlace()==inventoryDto.getToPlace()) {
-    		throw new RuntimeException("source and Destination Can't be Same");
+    		return Mono.error(new BadRequestException("source and Destination Can't be Same"));
     	}
 
-    	Airport source = airportUtil.validateAirport(inventoryDto.getFromPlace());
-    	Airport destination = airportUtil.validateAirport(inventoryDto.getToPlace());
+    	Airport source;
+    	Airport destination;
+		try {
+			source = airportUtil.validateAirport(inventoryDto.getFromPlace());
+			destination = airportUtil.validateAirport(inventoryDto.getToPlace());
+		} catch (BadRequestException e) {
+			return Mono.error(new BadRequestException("Source or Deatination invalid"));
+		}
+    	
 
 	    return flightInventoryRepo
 	        .findByAirlineAndFlightIdAndSourceAndDestinationAndDepartureTime(inventoryDto.getAirlineName(),inventoryDto.getFlightNumber(),source,destination,inventoryDto.getDepartureTime())
-	        .flatMap(existing -> Mono.error(new RuntimeException("Inventory already exists for this flight with same details")))
+	        .flatMap(existing -> Mono.error(new BadRequestException("Inventory already exists same details")))
 	        .switchIfEmpty(
 	            flightRepo.findById(inventoryDto.getFlightNumber())
 	                .flatMap(existingFlight -> {
 	                    if (!existingFlight.getAirline().equals(inventoryDto.getAirlineName())) {
-	                        return Mono.error(new RuntimeException("Flight Number Is already Associated"));
+	                        return Mono.error(new BadRequestException("Flight Number Taken"));
 	                    }
 	                    if (!existingFlight.getSource().equals(source) || !existingFlight.getDestination().equals(destination)) {
-	                        return Mono.error(new RuntimeException("Flight route mismatch"));
+	                        return Mono.error(new BadRequestException("Flight route mismatch"));
 	                    }
 	                    return Mono.just(existingFlight);
 	                })
@@ -70,37 +79,46 @@ public class FlightInventoryService {
 	}
 	
 	
-	public Mono<Map<String, List<FlightInventory>>> searchFlights(SearchRequestDto dto) {
+	public Mono<Map<String, List<FlightInventory>>> searchFlights(SearchRequestDto searchDto) {
 
-	    LocalDateTime onwardStart = dto.getJourneyDate().atStartOfDay();
-	    LocalDateTime onwardEnd = dto.getJourneyDate().atTime(23, 59, 59);
-	    Airport source = airportUtil.validateAirport(dto.getFromPlace());
-    	Airport destination = airportUtil.validateAirport(dto.getToPlace());
+	    LocalDateTime onwardStart = searchDto.getJourneyDate().atStartOfDay();
+	    LocalDateTime onwardEnd = searchDto.getJourneyDate().atTime(23, 59, 59);
+	    Airport source;
+    	Airport destination;
+		try {
+			source = airportUtil.validateAirport(searchDto.getFromPlace());
+			destination = airportUtil.validateAirport(searchDto.getToPlace());
+		} catch (BadRequestException e) {
+			return Mono.error(new BadRequestException("Source or Deatination Invalid"));
+		}
 	    
 	    Mono<List<FlightInventory>> onwardFlightsMono =
 	            flightInventoryRepo.findBySourceAndDestinationAndDepartureTimeBetween(source,destination,onwardStart,onwardEnd)
 	            .collectList()
 	            .flatMap(flights -> {
 	                if (flights.isEmpty()) {
-	                    return Mono.error(new RuntimeException("No onward flights found"));
+	                    return Mono.error(new NotFoundException());
 	                }
 	                return Mono.just(flights);
 	            });
 
-	    if (dto.getTripType().toUpperCase().equals("ROUND_TRIP")) {
+	    if (searchDto.getTripType().toUpperCase().equals("ROUND_TRIP")) {
 
-	        if (dto.getReturnDate() == null) {
-	            return Mono.error(new RuntimeException("Return date is required"));
+	        if (searchDto.getReturnDate() == null) {
+	            return Mono.error(new BadRequestException("Return date is required"));
 	        }
-	        LocalDateTime returnStart = dto.getReturnDate().atStartOfDay();
-	        LocalDateTime returnEnd = dto.getReturnDate().atTime(23, 59, 59);
+	        if(searchDto.getJourneyDate().isAfter(searchDto.getReturnDate())) {
+	        	return Mono.error(new BadRequestException("Return date mush be after Start date"));
+	        }
+	        LocalDateTime returnStart = searchDto.getReturnDate().atStartOfDay();
+	        LocalDateTime returnEnd = searchDto.getReturnDate().atTime(23, 59, 59);
 
 	        Mono<List<FlightInventory>> returnFlightsMono =
 	                flightInventoryRepo.findBySourceAndDestinationAndDepartureTimeBetween(source,destination,returnStart,returnEnd)
 	                .collectList()
 	                .flatMap(list -> {
 	                    if (list.isEmpty()) {
-	                        return Mono.error(new RuntimeException("No return flights found"));
+	                        return Mono.error(new NotFoundException());
 	                    }
 	                    return Mono.just(list);
 	                });

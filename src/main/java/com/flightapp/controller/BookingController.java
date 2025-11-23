@@ -14,6 +14,7 @@ import com.flightapp.dto.BookingRequestDto;
 import com.flightapp.service.BookingService;
 
 import jakarta.validation.Valid;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -35,7 +36,7 @@ public class BookingController {
 	
 	
 	@GetMapping("api/flight/booking/history/{email}")
-	public Mono<Object> historyEmail(@PathVariable String email){
+	public Flux<Object> historyEmail(@PathVariable String email){
 		return bookingService.getTicket(email);
 	}
 	
