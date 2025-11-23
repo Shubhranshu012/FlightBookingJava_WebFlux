@@ -23,4 +23,5 @@ public class Passenger {
 
     private String bookingId;  
     private String flightInventoryId;
+    private BookingStatus status;
 }

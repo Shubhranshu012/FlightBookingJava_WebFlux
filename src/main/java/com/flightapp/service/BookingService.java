@@ -66,7 +66,7 @@ public class BookingService {
                                                 .flatMap(savedBooking -> {
                                                     List<Passenger> passList = dto.getPassengers().stream()
                                                             .map(p -> Passenger.builder().name(p.getName()).gender(p.getGender()).age(p.getAge()).flightInventoryId(savedFlight.getId())
-                                                                    .seatNumber(p.getSeatNumber()).mealOption(p.getMealOption()).bookingId(savedBooking.getId()).build())
+                                                                    .seatNumber(p.getSeatNumber()).mealOption(p.getMealOption()).bookingId(savedBooking.getId()).status(BookingStatus.BOOKED).build())
                                                             .collect(Collectors.toList());
 
                                                     return passengerRepo.saveAll(passList).then(Mono.just(Map.of("pnr", pnr)));
@@ -75,5 +75,64 @@ public class BookingService {
                         })
                 );
     }
+	
+	public Mono<Object> getHistory(String pnr) { 
+
+		return bookingRepo.findByPnrAndStatus(pnr, BookingStatus.BOOKED)
+		        .switchIfEmpty(Mono.error(new RuntimeException("Pnr Not Found or Booking Not Active")))
+		        .flatMap(booking ->
+		                passengerRepo.findByBookingId(booking.getId()).collectList()
+		                        .map(passengers -> Map.of("booking", booking,"passengers", passengers))
+		        );
+	}
+	
+	public Mono<Object> getTicket(String email) {
+
+	    return bookingRepo.findByEmailAndStatus(email, BookingStatus.BOOKED)
+	            .switchIfEmpty(Mono.error(new RuntimeException("Ticket Not Found")))
+	            .flatMap(booking ->
+	                    passengerRepo.findByBookingId(booking.getId())
+	                            .collectList()
+	                            .map(passengers -> Map.of("booking", booking,"passengers", passengers))
+	            )
+	            .collectList()
+	            .map(list -> Map.of("tickets", list));
+	}
+	
+	public Mono<Void> cancelTicket(String pnr) {
+
+	    return bookingRepo.findByPnrAndStatus(pnr,BookingStatus.BOOKED)
+	            .switchIfEmpty(Mono.error(new RuntimeException("PNR Not Found")))
+	            .flatMap(booking -> {
+	            	LocalDateTime currentTime=LocalDateTime.now();
+	            	
+	            	if (!booking.getDepartureTime().isAfter(currentTime.plusHours(24))) {
+	            		return Mono.error( new RuntimeException("Cannot cancel within 24 hours of journey"));
+	                }
+	            	
+	                booking.setStatus(BookingStatus.CANCELLED);
+
+	                return bookingRepo.save(booking)
+	                        .then(
+	                                passengerRepo.findByBookingId(booking.getId())
+	                                        .collectList()
+	                                        .flatMap(passengers -> {
+	                                            passengers.forEach(p -> p.setStatus(BookingStatus.CANCELLED));
+	                                            return passengerRepo.saveAll(passengers).then();
+	                                        })
+	                        )
+	                        .then(
+	                                flightInventoryRepo.findById(booking.getFlightInventoryId())
+	                                        .flatMap(flightInventory -> {
+	                                            return passengerRepo.findByBookingId(booking.getId()).count()
+	                                                    .flatMap(count -> {
+	                                                        flightInventory.setAvailableSeats(flightInventory.getAvailableSeats() + count.intValue());
+	                                                        return flightInventoryRepo.save(flightInventory);
+	                                                    });
+	                                        })
+	                        )
+	                        .then();
+	            });
+	}
 
 }

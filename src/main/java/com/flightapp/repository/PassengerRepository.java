@@ -16,8 +16,8 @@ public interface PassengerRepository extends ReactiveMongoRepository<Passenger, 
     Flux<Passenger> findByBookingId(String bookingId);
     
     @Aggregation(pipeline = {
-    	    "{ '$match': { 'flightInventoryId': ?0 }}",
+    	    "{ '$match': { 'flightInventoryId': ?0, 'status': 'BOOKED' }}",
     	    "{ '$project': { '_id': 0, 'seatNumber': 1 }}"
-    	})
+    })
     Flux<String> findSeatNumbersByFlightInventoryId(String flightInventoryId);
 }

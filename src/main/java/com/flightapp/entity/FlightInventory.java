@@ -19,9 +19,9 @@ public class FlightInventory {
 	private String flightId;   //
     private Airport source;   
     private Airport destination;
-	private LocalDateTime departureTime;//
-	private LocalDateTime arrivalTime;	//
-	private float price;		//
-	private Integer totalSeats;//
-	private Integer availableSeats;//
+	private LocalDateTime departureTime;
+	private LocalDateTime arrivalTime;	
+	private float price;		
+	private Integer totalSeats;
+	private Integer availableSeats;
 }
