@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 
 @SpringBootTest
 @AutoConfigureWebTestClient
-public class DeleteTest {
+class DeleteTest {
 
     @Autowired
     private WebTestClient webTestClient;
