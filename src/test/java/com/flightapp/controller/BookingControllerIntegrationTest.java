@@ -46,10 +46,6 @@ class BookingControllerIntegrationTest {
 
     @BeforeEach
     void setup() {
-        bookingRepo.deleteAll().block();
-        inventoryRepo.deleteAll().block();
-        flightRepo.deleteAll().block();
-        passengerRepo.deleteAll().block();
 
         flightRepo.save(Flight.builder().id("IN-100").airline("IndiGo").source(Airport.DELHI).destination(Airport.MUMBAI).build()).block();
 
@@ -85,18 +81,18 @@ class BookingControllerIntegrationTest {
         return passenger;
     }
 
-    private BookingRequestDto buildBooking(PassengerDto p, List<String> seats) {
+    private BookingRequestDto buildBooking(PassengerDto passenger, List<String> seats) {
         BookingRequestDto booking = new BookingRequestDto();
         booking.setEmail("test@gmail.com");
         booking.setNumberOfSeats(seats.size());
         booking.setSeatNumbers(seats);
-        booking.setPassengers(List.of(p));
+        booking.setPassengers(List.of(passenger));
         booking.setMealOption("Mix");
         return booking;
     }
 
     private BookingRequestDto validBooking() {
-        return buildBooking(buildPassenger("Rohit", "M", 28, "12A", "VEG"),List.of("12A"));
+        return buildBooking(buildPassenger("Rohit", "MALE", 28, "12A", "VEG"),List.of("12A"));
     }
 
 
@@ -112,7 +108,22 @@ class BookingControllerIntegrationTest {
     @Test
     void bookTicket_moreSeatsThanPassengers() {
         BookingRequestDto bookingDto = buildBooking(
-                buildPassenger("Rohit", "M", 28, "12A", "VEG"),
+                buildPassenger("Rohit", "MALE", 28, "12A", "VEG"),
+                List.of("1A", "1B")
+        );
+        
+
+        webTestClient.post()
+                .uri("/api/flight/booking/" + inventoryId1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(bookingDto)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+    @Test
+    void bookTicket_GenderInvalid() {
+        BookingRequestDto bookingDto = buildBooking(
+                buildPassenger("Rohit", "Happy", 28, "12A", "VEG"),
                 List.of("1A", "1B")
         );
 
@@ -143,8 +154,11 @@ class BookingControllerIntegrationTest {
 
     @Test
     void bookTicket_duplicateSeatInRequest() {
-        PassengerDto passengerDto = buildPassenger("Rohit", "M", 28, "12A", "VEG");
+        PassengerDto passengerDto = buildPassenger("Rohit", "MALE", 28, "12A", "VEG");
         BookingRequestDto bookingDto = buildBooking(passengerDto, List.of("12A", "12A"));
+        PassengerDto passengerDto1=buildPassenger("Rohit", "MALE", 28, "12A", "VEG");
+        PassengerDto passengerDto2=buildPassenger("Rohit", "MALE", 28, "12B", "VEG");
+        bookingDto.setPassengers(List.of(passengerDto1,passengerDto2));
 
         webTestClient.post()
                 .uri("/api/flight/booking/" + inventoryId1)
@@ -156,7 +170,7 @@ class BookingControllerIntegrationTest {
 
     @Test
     void bookTicket_notEnoughSeatsLeft() {
-        PassengerDto passengerDto = buildPassenger("Rohit", "M", 28, "12A", "VEG");
+        PassengerDto passengerDto = buildPassenger("Rohit", "MALE", 28, "12A", "VEG");
         BookingRequestDto bookingDto = buildBooking(passengerDto, List.of("12A", "12B"));
 
         webTestClient.post()

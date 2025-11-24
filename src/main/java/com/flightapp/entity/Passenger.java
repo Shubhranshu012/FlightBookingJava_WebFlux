@@ -16,7 +16,7 @@ public class Passenger {
     private String id;
 
     private String name;
-    private String gender;
+    private Gender gender;
     private Integer age;
     private String seatNumber;
     private String mealOption;

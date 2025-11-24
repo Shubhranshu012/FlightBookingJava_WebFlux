@@ -44,7 +44,8 @@ public class FlightInventoryService {
 		try {
 			source = AirportUtil.validateAirport(inventoryDto.getFromPlace());
 			destination = AirportUtil.validateAirport(inventoryDto.getToPlace());
-		} catch (BadRequestException e) {
+		} 
+		catch (BadRequestException e) {
 			return Mono.error(new BadRequestException("Source or Deatination invalid"));
 		}
     	
@@ -86,7 +87,8 @@ public class FlightInventoryService {
 		try {
 			source = AirportUtil.validateAirport(searchDto.getFromPlace());
 			destination = AirportUtil.validateAirport(searchDto.getToPlace());
-		} catch (BadRequestException e) {
+		} 
+		catch (BadRequestException e) {
 			return Mono.error(new BadRequestException("Source or Deatination Invalid"));
 		}
 	    

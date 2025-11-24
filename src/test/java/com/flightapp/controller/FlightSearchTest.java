@@ -34,9 +34,6 @@ class FlightSearchTest {
 
     @BeforeEach
     void setup() {
-        inventoryRepo.deleteAll().block();
-        flightRepo.deleteAll().block();
-    	
         flightRepo.save(Flight.builder().id("IN-100").airline("IndiGo").source(Airport.DELHI).destination(Airport.MUMBAI).build()).block();
 
         flightRepo.save(Flight.builder().id("IN-101").airline("IndiGo").source(Airport.MUMBAI).destination(Airport.DELHI).build()).block();
@@ -126,6 +123,19 @@ class FlightSearchTest {
 		        .bodyValue(request)
 		        .exchange()
 		        .expectStatus().isOk();
+    }
+    @Test
+    void bothWay_returnDateWrong() {
+    	SearchRequestDto request=getRequest();
+    	request.setTripType("Round_Trip");
+    	request.setReturnDate(LocalDate.now());
+    	
+    	webTestClient.post()
+		    	.uri("/api/flight/search")
+		        .contentType(MediaType.APPLICATION_JSON)
+		        .bodyValue(request)
+		        .exchange()
+		        .expectStatus().isBadRequest();
     }
 
 }

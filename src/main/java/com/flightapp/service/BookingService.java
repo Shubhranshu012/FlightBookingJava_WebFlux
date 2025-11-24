@@ -20,10 +20,11 @@ import com.flightapp.exception.NotFoundException;
 import com.flightapp.repository.BookingRepository;
 import com.flightapp.repository.FlightInventoryRepository;
 import com.flightapp.repository.PassengerRepository;
+import com.flightapp.util.GenderUtil;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
+import com.flightapp.entity.Gender;
 @Service
 public class BookingService {
 	
@@ -39,11 +40,22 @@ public class BookingService {
 	public Mono<Object> bookTicket(String flightId, BookingRequestDto bookingDto) {
         if (bookingDto.getNumberOfSeats() != bookingDto.getPassengers().size()) {
             return Mono.error(new BadRequestException("Seat numbers count must match passenger count"));
+        } 
+        for (var p : bookingDto.getPassengers()) {
+        	try {
+        		GenderUtil.validateGender(p.getGender()); 
+        	}
+        	catch (BadRequestException e) {
+    			return Mono.error(new BadRequestException("Gender Invalid"));
+    		}
+        	
         }
         Set<String> uniqueSeats = new HashSet<>(bookingDto.getSeatNumbers());
         if (uniqueSeats.size() != bookingDto.getSeatNumbers().size()) {
             return Mono.error(new BadRequestException("Duplicate seat numbers in request"));
         }
+        
+		
         return flightInventoryRepo.findByFlightId(flightId)
                 .switchIfEmpty(Mono.error(new BadRequestException("Flight not found")))
                 .flatMap(flightInventory -> passengerRepo.findSeatNumbersByFlightInventoryId(flightInventory.getId()).collectList()
@@ -68,7 +80,7 @@ public class BookingService {
                                         return bookingRepo.save(booking)
                                                 .flatMap(savedBooking -> {
                                                     List<Passenger> passList = bookingDto.getPassengers().stream()
-                                                            .map(p -> Passenger.builder().name(p.getName()).gender(p.getGender()).age(p.getAge()).flightInventoryId(savedFlight.getId())
+                                                            .map(p -> Passenger.builder().name(p.getName()).gender(Gender.valueOf((p.getGender()).toUpperCase())).age(p.getAge()).flightInventoryId(savedFlight.getId())
                                                                     .seatNumber(p.getSeatNumber()).mealOption(p.getMealOption()).bookingId(savedBooking.getId()).status(BookingStatus.BOOKED).build())
                                                             .collect(Collectors.toList());
 

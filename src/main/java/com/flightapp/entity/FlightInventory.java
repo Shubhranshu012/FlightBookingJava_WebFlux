@@ -16,7 +16,7 @@ public class FlightInventory {
 	@Id
 	private String id;
 	private String airline;
-	private String flightId;   //
+	private String flightId;
     private Airport source;   
     private Airport destination;
 	private LocalDateTime departureTime;

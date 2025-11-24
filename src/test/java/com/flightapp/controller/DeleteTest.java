@@ -5,6 +5,7 @@ import com.flightapp.entity.Booking;
 import com.flightapp.entity.BookingStatus;
 import com.flightapp.entity.Flight;
 import com.flightapp.entity.FlightInventory;
+import com.flightapp.entity.Gender;
 import com.flightapp.entity.Passenger;
 import com.flightapp.repository.BookingRepository;
 import com.flightapp.repository.FlightInventoryRepository;
@@ -43,9 +44,6 @@ class DeleteTest {
 
     @BeforeEach
     void setup() {
-        bookingRepo.deleteAll().block();
-        inventoryRepo.deleteAll().block();
-        flightRepo.deleteAll().block();
 
         flightRepo.save(Flight.builder().id("IN-100").airline("IndiGo").source(Airport.DELHI).destination(Airport.MUMBAI).build()).block();
 
@@ -65,7 +63,7 @@ class DeleteTest {
     private String createBooking(String inventoryId) {
         String pnr = "PNR123";
         Booking booking = Booking.builder().pnr(pnr).email("test@gmail.com").flightInventoryId(inventoryId).status(BookingStatus.BOOKED).bookingTime(LocalDateTime.now()).departureTime(LocalDateTime.now().plusDays(2)).build();
-        Passenger passenger = Passenger.builder().bookingId(booking.getId()).name("Rohit").gender("M").age(28).seatNumber("12A").mealOption("VEG").status(BookingStatus.BOOKED).build();
+        Passenger passenger = Passenger.builder().bookingId(booking.getId()).name("Rohit").gender(Gender.valueOf("MALE")).age(28).seatNumber("12A").mealOption("VEG").status(BookingStatus.BOOKED).build();
         passengerRepo.save(passenger).block();
         bookingRepo.save(booking).block();
         return pnr;
@@ -73,7 +71,7 @@ class DeleteTest {
     private String createBooking2(String inventoryId) {
         String pnr = "PNR1234";
         Booking booking = Booking.builder().pnr(pnr).email("test@gmail.com").flightInventoryId(inventoryId).status(BookingStatus.BOOKED).bookingTime(LocalDateTime.now()).departureTime(LocalDateTime.now()).build();
-        Passenger passenger = Passenger.builder().bookingId(booking.getId()).name("Rohit").gender("M").age(28).seatNumber("12A").mealOption("VEG").status(BookingStatus.BOOKED).build();
+        Passenger passenger = Passenger.builder().bookingId(booking.getId()).name("Rohit").gender(Gender.valueOf("MALE")).age(28).seatNumber("12A").mealOption("VEG").status(BookingStatus.BOOKED).build();
         passengerRepo.save(passenger).block();
         bookingRepo.save(booking).block();
         return pnr;
