@@ -35,7 +35,6 @@ class FlightSearchTest {
     @BeforeEach
     void setup() {
         flightRepo.save(Flight.builder().id("IN-100").airline("IndiGo").source(Airport.DELHI).destination(Airport.MUMBAI).build()).block();
-
         flightRepo.save(Flight.builder().id("IN-101").airline("IndiGo").source(Airport.MUMBAI).destination(Airport.DELHI).build()).block();
 
         inventoryRepo.save(FlightInventory.builder().airline("IndiGo").flightId("IN-100")
@@ -45,7 +44,6 @@ class FlightSearchTest {
         inventoryRepo.save(FlightInventory.builder().airline("IndiGo").flightId("IN-101")
                         .source(Airport.MUMBAI).destination(Airport.DELHI).departureTime(LocalDateTime.now().plusDays(3))
                         .arrivalTime(LocalDateTime.now().plusDays(2).plusHours(2)).price(4500).totalSeats(180).availableSeats(1).build()).block();
-
     }
     
     @AfterEach
@@ -84,7 +82,6 @@ class FlightSearchTest {
 		        .exchange()
 		        .expectStatus().isBadRequest();
     }
-    
     @Test
     void search_ReturnDateNotGiven() {
     	SearchRequestDto request=getRequest();
@@ -110,7 +107,6 @@ class FlightSearchTest {
 		        .exchange()
 		        .expectStatus().isNotFound();
     }
-    
     @Test
     void bothWay_Success() {
     	SearchRequestDto request=getRequest();
@@ -137,5 +133,4 @@ class FlightSearchTest {
 		        .exchange()
 		        .expectStatus().isBadRequest();
     }
-
 }

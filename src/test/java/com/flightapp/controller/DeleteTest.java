@@ -44,9 +44,7 @@ class DeleteTest {
 
     @BeforeEach
     void setup() {
-
         flightRepo.save(Flight.builder().id("IN-100").airline("IndiGo").source(Airport.DELHI).destination(Airport.MUMBAI).build()).block();
-
         inventoryRepo.save(FlightInventory.builder().airline("IndiGo").flightId("IN-100")
                 .source(Airport.DELHI).destination(Airport.MUMBAI).departureTime(LocalDateTime.now().plusDays(2))
                 .arrivalTime(LocalDateTime.now().plusDays(2).plusHours(2)).price(4500).totalSeats(180).availableSeats(180).build()).block();
@@ -86,7 +84,6 @@ class DeleteTest {
                 .exchange()
                 .expectStatus().isOk();
     }
-
     @Test
     void test_cancelTimeLimit() {
         String pnr = createBooking2(inventoryId1);
@@ -96,7 +93,6 @@ class DeleteTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
-
     @Test
     void testBookTicket_cancelThenSearch() {
         String pnr = createBooking(inventoryId1);
@@ -111,7 +107,6 @@ class DeleteTest {
                 .exchange()
                 .expectStatus().isNotFound();
     }
-
     @Test
     void testBookTicket_cancelWrongPnr() {
     	createBooking(inventoryId1);
@@ -121,7 +116,6 @@ class DeleteTest {
                 .exchange()
                 .expectStatus().isNotFound();
     }
-
     @Test
     void test_Ticket() {
         String pnr = createBooking(inventoryId1);
@@ -131,7 +125,6 @@ class DeleteTest {
                 .exchange()
                 .expectStatus().isOk();
     }
-
     @Test
     void test_History() {
     	createBooking(inventoryId1);

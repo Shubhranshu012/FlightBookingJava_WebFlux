@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.flightapp.dto.InventoryRequestDto;
 import com.flightapp.dto.SearchRequestDto;
@@ -21,13 +19,14 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class FlightInventoryService {
-	
-	@Autowired
-	FlightInventoryRepository flightInventoryRepo;
-	
-	@Autowired
-	FlightRepository flightRepo;
-	
+	private final FlightInventoryRepository flightInventoryRepo;
+    private final FlightRepository flightRepo;
+
+    public FlightInventoryService(FlightInventoryRepository flightInventoryRepo, FlightRepository flightRepo) {
+        this.flightInventoryRepo = flightInventoryRepo;
+        this.flightRepo = flightRepo;
+    }
+    
 	public Mono<Object> addInventory(InventoryRequestDto inventoryDto) {
 		if (inventoryDto.getAvailableSeats() > inventoryDto.getTotalSeats()) {
             return Mono.error(new BadRequestException("Available seats cannot be greater than total seats"));

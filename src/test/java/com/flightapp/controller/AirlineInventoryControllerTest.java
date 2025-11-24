@@ -61,7 +61,6 @@ class AirlineInventoryControllerTest {
         inventoryDto.setAvailableSeats(180);
         return inventoryDto;
     }
-
     @Test
     void addInventory_validationError_missingAirlineName() {
         InventoryRequestDto inventoryDto = buildValidDto();
@@ -74,7 +73,6 @@ class AirlineInventoryControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
-
     @Test
     void addInventory_validationError_timeMisMatch() {
         InventoryRequestDto inventoryDto = buildValidDto();
@@ -88,7 +86,6 @@ class AirlineInventoryControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
-
     @Test
     void addInventory_SameSourceDestination() {
         InventoryRequestDto inventoryDto = buildValidDto();
@@ -114,8 +111,6 @@ class AirlineInventoryControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
-  
-
     @Test
     void addInventory_validationError_availableSeatsGreaterThanTotal() {
         InventoryRequestDto inventoryDto = buildValidDto();
@@ -128,7 +123,6 @@ class AirlineInventoryControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
-    
     @Test
     void addInventory_secondTime() {
         InventoryRequestDto inventoryDto = buildValidDto();
@@ -145,9 +139,7 @@ class AirlineInventoryControllerTest {
 		        .bodyValue(inventoryDto)
 		        .exchange()
 		        .expectStatus().isBadRequest();
-
     }
-    
     @Test
     void addInventory_routeMisMatch() {
         InventoryRequestDto inventoryDto = buildValidDto();
@@ -165,7 +157,6 @@ class AirlineInventoryControllerTest {
 		        .bodyValue(inventoryDto2)
 		        .exchange()
 		        .expectStatus().isBadRequest();
-
     }
     @Test
     void addInventory_flightNumberTaken() {
@@ -184,8 +175,5 @@ class AirlineInventoryControllerTest {
 		        .bodyValue(inventoryDto2)
 		        .exchange()
 		        .expectStatus().isBadRequest();
-
     }
-    
-    
 }

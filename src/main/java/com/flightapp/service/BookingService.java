@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.flightapp.dto.BookingRequestDto;
@@ -25,17 +23,20 @@ import com.flightapp.util.GenderUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import com.flightapp.entity.Gender;
+
 @Service
 public class BookingService {
 	
-	@Autowired
-	FlightInventoryRepository flightInventoryRepo;
+	private final FlightInventoryRepository flightInventoryRepo;
+	private final BookingRepository bookingRepo;
+	private final PassengerRepository passengerRepo;
+
+	public BookingService(FlightInventoryRepository flightInventoryRepo,BookingRepository bookingRepo, PassengerRepository passengerRepo) {
+		this.flightInventoryRepo = flightInventoryRepo;
+	    this.bookingRepo = bookingRepo;
+	    this.passengerRepo = passengerRepo;
+	}
 	
-	@Autowired
-	BookingRepository bookingRepo;
-	
-	@Autowired
-	PassengerRepository passengerRepo;
 	
 	public Mono<Object> bookTicket(String flightId, BookingRequestDto bookingDto) {
         if (bookingDto.getNumberOfSeats() != bookingDto.getPassengers().size()) {
