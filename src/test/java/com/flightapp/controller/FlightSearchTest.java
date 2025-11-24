@@ -3,6 +3,7 @@ package com.flightapp.controller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import com.flightapp.dto.SearchRequestDto;
 import com.flightapp.entity.Airport;
 import com.flightapp.entity.Flight;
 import com.flightapp.entity.FlightInventory;
-import com.flightapp.repository.BookingRepository;
 import com.flightapp.repository.FlightInventoryRepository;
 import com.flightapp.repository.FlightRepository;
 
@@ -32,16 +32,11 @@ class FlightSearchTest {
     @Autowired
     private FlightInventoryRepository inventoryRepo;
 
-    @Autowired
-    private BookingRepository bookingRepo;
-
-
     @BeforeEach
     void setup() {
-        bookingRepo.deleteAll().block();
         inventoryRepo.deleteAll().block();
         flightRepo.deleteAll().block();
-
+    	
         flightRepo.save(Flight.builder().id("IN-100").airline("IndiGo").source(Airport.DELHI).destination(Airport.MUMBAI).build()).block();
 
         flightRepo.save(Flight.builder().id("IN-101").airline("IndiGo").source(Airport.MUMBAI).destination(Airport.DELHI).build()).block();
@@ -56,6 +51,12 @@ class FlightSearchTest {
 
     }
     
+    @AfterEach
+    void cleanUp() {
+    	inventoryRepo.deleteAll().block();
+    	flightRepo.deleteAll().block();
+    }
+    	
     SearchRequestDto getRequest() {
     	SearchRequestDto search=new SearchRequestDto();
     	search.setFromPlace("DELHI");

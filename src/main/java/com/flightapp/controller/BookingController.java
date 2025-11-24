@@ -24,14 +24,14 @@ public class BookingController {
 	BookingService bookingService;
 	
 	@PostMapping("/api/flight/booking/{flightId}")
-	public Mono<ResponseEntity<Object>> book(@PathVariable String flightId,@RequestBody @Valid BookingRequestDto dto) {
+	public Mono<ResponseEntity<Object>> book(@PathVariable String flightId,@RequestBody @Valid BookingRequestDto bookingDto) {
 
-	    return bookingService.bookTicket(flightId, dto).map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
+	    return bookingService.bookTicket(flightId, bookingDto).map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
 	}
 	
-	@GetMapping("/api/flight/ticket/{Pnr}")
-	public Mono<Object> history(@PathVariable String Pnr){
-		return bookingService.getHistory(Pnr);
+	@GetMapping("/api/flight/ticket/{pnr}")
+	public Mono<Object> history(@PathVariable String pnr){
+		return bookingService.getHistory(pnr);
 	}
 	
 	
@@ -40,9 +40,9 @@ public class BookingController {
 		return bookingService.getTicket(email);
 	}
 	
-	@DeleteMapping("/api/flight/booking/cancel/{Pnr}")
-	public Mono<Void> deleteBooking(@PathVariable String Pnr){
-		return bookingService.cancelTicket(Pnr);
+	@DeleteMapping("/api/flight/booking/cancel/{pnr}")
+	public Mono<Void> deleteBooking(@PathVariable String pnr){
+		return bookingService.cancelTicket(pnr);
 	}
 	
 }

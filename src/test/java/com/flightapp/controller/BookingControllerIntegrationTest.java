@@ -8,7 +8,9 @@ import com.flightapp.entity.FlightInventory;
 import com.flightapp.repository.BookingRepository;
 import com.flightapp.repository.FlightInventoryRepository;
 import com.flightapp.repository.FlightRepository;
+import com.flightapp.repository.PassengerRepository;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +37,10 @@ class BookingControllerIntegrationTest {
 
     @Autowired
     private BookingRepository bookingRepo;
-
+    
+    @Autowired
+    private PassengerRepository passengerRepo;
+    
     private String inventoryId1;
     private String inventoryId2;
 
@@ -44,6 +49,7 @@ class BookingControllerIntegrationTest {
         bookingRepo.deleteAll().block();
         inventoryRepo.deleteAll().block();
         flightRepo.deleteAll().block();
+        passengerRepo.deleteAll().block();
 
         flightRepo.save(Flight.builder().id("IN-100").airline("IndiGo").source(Airport.DELHI).destination(Airport.MUMBAI).build()).block();
 
@@ -61,6 +67,14 @@ class BookingControllerIntegrationTest {
         inventoryId2 = "IN-101";
     }
 
+    @AfterEach
+    void cleanUp() {
+    	inventoryRepo.deleteAll().block();
+    	flightRepo.deleteAll().block();
+    	bookingRepo.deleteAll().block();
+    	passengerRepo.deleteAll().block();
+    	
+    }
     private PassengerDto buildPassenger(String name, String gender, int age, String seat, String meal) {
         PassengerDto passenger = new PassengerDto();
         passenger.setName(name);
@@ -97,7 +111,7 @@ class BookingControllerIntegrationTest {
     }
     @Test
     void bookTicket_moreSeatsThanPassengers() {
-        BookingRequestDto dto = buildBooking(
+        BookingRequestDto bookingDto = buildBooking(
                 buildPassenger("Rohit", "M", 28, "12A", "VEG"),
                 List.of("1A", "1B")
         );
@@ -105,7 +119,7 @@ class BookingControllerIntegrationTest {
         webTestClient.post()
                 .uri("/api/flight/booking/" + inventoryId1)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(dto)
+                .bodyValue(bookingDto)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
@@ -129,26 +143,26 @@ class BookingControllerIntegrationTest {
 
     @Test
     void bookTicket_duplicateSeatInRequest() {
-        PassengerDto p = buildPassenger("Rohit", "M", 28, "12A", "VEG");
-        BookingRequestDto dto = buildBooking(p, List.of("12A", "12A"));
+        PassengerDto passengerDto = buildPassenger("Rohit", "M", 28, "12A", "VEG");
+        BookingRequestDto bookingDto = buildBooking(passengerDto, List.of("12A", "12A"));
 
         webTestClient.post()
                 .uri("/api/flight/booking/" + inventoryId1)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(dto)
+                .bodyValue(bookingDto)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
 
     @Test
     void bookTicket_notEnoughSeatsLeft() {
-        PassengerDto p = buildPassenger("Rohit", "M", 28, "12A", "VEG");
-        BookingRequestDto dto = buildBooking(p, List.of("12A", "12B"));
+        PassengerDto passengerDto = buildPassenger("Rohit", "M", 28, "12A", "VEG");
+        BookingRequestDto bookingDto = buildBooking(passengerDto, List.of("12A", "12B"));
 
         webTestClient.post()
                 .uri("/api/flight/booking/" + inventoryId2)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(dto)
+                .bodyValue(bookingDto)
                 .exchange()
                 .expectStatus().isBadRequest();
     }

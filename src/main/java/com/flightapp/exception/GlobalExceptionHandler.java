@@ -13,26 +13,27 @@ import reactor.core.publisher.Mono;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	@ExceptionHandler(WebExchangeBindException.class)
-    public Mono<ResponseEntity<Map<String, String>>> handleValidationErrors(WebExchangeBindException ex) {
+    public Mono<ResponseEntity<Map<String, String>>> handleValidationErrors(WebExchangeBindException exception) {
 
         Map<String, String> errors = new HashMap<>();
-        ex.getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
+        exception.getFieldErrors().forEach(error -> 
+            errors.put(error.getField(), error.getDefaultMessage())
+        );
 
         return Mono.just(ResponseEntity.badRequest().body(errors));
     }
+	
 	 @ExceptionHandler(BadRequestException.class)
 	 @ResponseStatus(HttpStatus.BAD_REQUEST)
-	 public Mono<Map<String, String>> handleRuntime(BadRequestException ex) {	
+	 public Mono<Map<String, String>> handleRuntime(BadRequestException exception) {	
 		 Map<String, String> error = new HashMap<>();
-	     error.put("message", ex.getMessage());
+	     error.put("message", exception.getMessage());
 	     return Mono.just(error);
 	 }
 	 
 	 @ExceptionHandler(NotFoundException.class)
 	 @ResponseStatus(HttpStatus.NOT_FOUND)
-	 public Mono<Void> handleRuntime(NotFoundException ex) {
+	 public Mono<Void> handleRuntime(NotFoundException exception) {
 	     return null;
 	 }
 }

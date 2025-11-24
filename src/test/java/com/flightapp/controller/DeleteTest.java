@@ -11,6 +11,7 @@ import com.flightapp.repository.FlightInventoryRepository;
 import com.flightapp.repository.FlightRepository;
 import com.flightapp.repository.PassengerRepository;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,12 @@ class DeleteTest {
         
         inventoryId1 = "IN-100";
     }
+    @AfterEach
+    void cleanUp() {
+    	inventoryRepo.deleteAll().block();
+    	flightRepo.deleteAll().block();
+    	bookingRepo.deleteAll().block();
+    }
 
     private String createBooking(String inventoryId) {
         String pnr = "PNR123";
@@ -73,7 +80,7 @@ class DeleteTest {
     }
     
     @Test
-    void testBookTicket_success_and_cancel() {
+    void test_delete_Success() {
         String pnr = createBooking(inventoryId1);
 
         webTestClient.delete()
@@ -83,7 +90,7 @@ class DeleteTest {
     }
 
     @Test
-    void testBookTicket_success_and_cancelTimeLimit() {
+    void test_cancelTimeLimit() {
         String pnr = createBooking2(inventoryId1);
 
         webTestClient.delete()
@@ -118,7 +125,7 @@ class DeleteTest {
     }
 
     @Test
-    void testBookTicket_ThenTicket() {
+    void test_Ticket() {
         String pnr = createBooking(inventoryId1);
 
         webTestClient.get()
@@ -128,7 +135,7 @@ class DeleteTest {
     }
 
     @Test
-    void testBookTicket_ThenHistory() {
+    void test_History() {
     	createBooking(inventoryId1);
 
         webTestClient.get()

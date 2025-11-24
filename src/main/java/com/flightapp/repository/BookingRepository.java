@@ -1,8 +1,5 @@
 package com.flightapp.repository;
 
-import java.util.List;
-
-import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import com.flightapp.entity.Booking;
@@ -19,4 +16,3 @@ public interface BookingRepository extends ReactiveMongoRepository<Booking,Strin
 	Flux<Booking> findByEmailAndStatus(String email,BookingStatus status);
 
 }
-;
