@@ -76,3 +76,13 @@ I have Also used some **MongoDB pipelines** for querys.
 2. If found, return ticket details along with passenger information.  
 3. If not found, return **404 Not Found**.  
 
+
+---
+
+## Sonar Qube Report
+
+1. Before:
+![Sonar Qube Report Before](Sonar_Qube_Before.png)  
+
+2. After:
+![Sonar Qube Report After](Sonar_Qube_After.png)
