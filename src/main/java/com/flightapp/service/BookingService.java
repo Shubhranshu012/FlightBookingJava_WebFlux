@@ -37,7 +37,6 @@ public class BookingService {
 	    this.passengerRepo = passengerRepo;
 	}
 	
-	
 	public Mono<Object> bookTicket(String flightId, BookingRequestDto bookingDto) {
         if (bookingDto.getNumberOfSeats() != bookingDto.getPassengers().size()) {
             return Mono.error(new BadRequestException("Seat numbers count must match passenger count"));
@@ -56,9 +55,8 @@ public class BookingService {
             return Mono.error(new BadRequestException("Duplicate seat numbers in request"));
         }
         
-		
         return flightInventoryRepo.findByFlightId(flightId)
-                .switchIfEmpty(Mono.error(new BadRequestException("Flight not found")))
+                .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(flightInventory -> passengerRepo.findSeatNumbersByFlightInventoryId(flightInventory.getId()).collectList()
                 		.flatMap(bookedSeats -> {
                             if (flightInventory.getAvailableSeats() < bookingDto.getNumberOfSeats()) {

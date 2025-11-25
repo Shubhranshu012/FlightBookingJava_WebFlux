@@ -48,7 +48,6 @@ public class FlightInventoryService {
 			return Mono.error(new BadRequestException("Source or Deatination invalid"));
 		}
     	
-
 	    return flightInventoryRepo
 	        .findByAirlineAndFlightIdAndSourceAndDestinationAndDepartureTime(inventoryDto.getAirlineName(),inventoryDto.getFlightNumber(),source,destination,inventoryDto.getDepartureTime())
 	        .flatMap(existing -> Mono.error(new BadRequestException("Inventory already exists same details")))
@@ -75,7 +74,6 @@ public class FlightInventoryService {
 	                })
 	        );
 	}
-	
 	
 	public Mono<Map<String, List<FlightInventory>>> searchFlights(SearchRequestDto searchDto) {
 
